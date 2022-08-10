@@ -12,8 +12,8 @@ interface IVideo {
   uri: string;
   isPaused: boolean;
   isPausedHorizontal: boolean;
-  style: {};
-  showMuteIcon: boolean;
+  style?: {};
+  showMuteIcon?: boolean;
 }
 
 const VideoPlayer = (props: IVideo) => {
@@ -31,7 +31,7 @@ const VideoPlayer = (props: IVideo) => {
       <Video
         ref={playerRef}
         // source={{
-        //   uri: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+        //   uri: 'file:///private/var/mobile/Containers/Data/Application/F88554AB-435A-4A05-8F13-C38E28E66C89/tmp/ReactNative/EEE7BC26-1A3F-4C99-A0F7-0E5427A8FE32.mov',
         // }}
         source={{uri}}
         style={[styles.video, style]}

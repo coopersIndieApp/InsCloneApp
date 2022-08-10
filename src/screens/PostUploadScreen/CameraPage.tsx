@@ -46,14 +46,22 @@ const CameraPage = () => {
   const [cameraPosition, setCameraPosition] = useState<'front' | 'back'>(
     'back',
   );
+
   const [flash, setFlash] = useState<any>('off');
   const camera = useRef<Camera>(null);
   const devices = useCameraDevices();
   const device = devices[cameraPosition];
+  const [hasMicrophonePermission, setHasMicrophonePermission] = useState(false);
   const zoom = useSharedValue(0);
   const isPressingButton = useSharedValue(false);
   const minZoom = device?.minZoom ?? 1;
   const maxZoom = Math.min(device?.maxZoom ?? 1, 20);
+
+  useEffect(() => {
+    Camera.getMicrophonePermissionStatus().then(status =>
+      setHasMicrophonePermission(status === 'authorized'),
+    );
+  }, []);
 
   const cameraAnimatedProps = useAnimatedProps(() => {
     const z = Math.max(Math.min(zoom.value, maxZoom), minZoom);
@@ -66,6 +74,7 @@ const CameraPage = () => {
   const onFlipCameraPressed = useCallback(() => {
     setCameraPosition(p => (p === 'back' ? 'front' : 'back'));
   }, []);
+
   const onFlashPressed = useCallback(() => {
     // setFlash(f => (f === 'off' ? 'on' : 'off'));
 
@@ -92,19 +101,6 @@ const CameraPage = () => {
     },
     [],
   );
-
-  //#region Camera Capture
-  const takePhoto = useCallback(async () => {
-    try {
-      if (camera.current == null) throw new Error('Camera ref is null!');
-
-      console.log('Taking photo...');
-      const photo = await camera.current.takePhoto(takePhotoOptions);
-      onMediaCaptured(photo, 'photo');
-    } catch (e) {
-      console.error('Failed to take photo!', e);
-    }
-  }, [camera, onMediaCaptured, takePhotoOptions]);
 
   const onDoubleTap = useCallback(() => {
     onFlipCameraPressed();
@@ -158,37 +154,20 @@ const CameraPage = () => {
               ref={camera}
               style={StyleSheet.absoluteFill}
               device={device}
-              // format={format}
-              // fps={fps}
-              // hdr={enableHdr}
-              // lowLightBoost={device.supportsLowLightBoost && enableNightMode}
               isActive={true}
               onInitialized={() => setIsCameraInitialized(true)}
-              // onError={onError}
               enableZoomGesture={false}
               animatedProps={cameraAnimatedProps}
               photo={true}
               video={true}
-              // audio={hasMicrophonePermission}
-              // frameProcessor={device.supportsParallelVideoProcessing ? frameProcessor : undefined}
+              audio={hasMicrophonePermission}
               orientation="portrait"
               frameProcessorFps={1}
-              // onFrameProcessorPerformanceSuggestionAvailable={onFrameProcessorSuggestionAvailable}
             />
           </TapGestureHandler>
         </Reanimated.View>
       </PinchGestureHandler>
 
-      {/* <ReanimatedCamera
-        ref={camera}
-        device={device}
-        isActive={true}
-        style={StyleSheet.absoluteFill}
-        photo={true}
-        onInitialized={() => setIsCameraInitialized(true)}
-        enableZoomGesture={false}
-        animatedProps={cameraAnimatedProps}
-      /> */}
       <CaptureButton
         style={styles.captureButton}
         camera={camera}
@@ -200,6 +179,7 @@ const CameraPage = () => {
         enabled={isCameraInitialized}
         setIsPressingButton={setIsPressingButton}
       />
+
       <CameraButton
         iconName={'close'}
         style={{top: 20, left: 20}}

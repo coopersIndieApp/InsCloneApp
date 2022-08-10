@@ -1,4 +1,4 @@
-import React, {useCallback, useMemo, useRef} from 'react';
+import React, {useCallback, useMemo, useRef, useState} from 'react';
 import {StyleSheet, View, ViewProps} from 'react-native';
 import {
   PanGestureHandler,
@@ -97,6 +97,7 @@ const _CaptureButton: React.FC<Props> = ({
     cancelAnimation(recordingProgress);
     console.log('stopped recording video!');
   }, [recordingProgress]);
+
   const stopRecording = useCallback(async () => {
     try {
       if (camera.current == null) throw new Error('Camera ref is null!');
@@ -113,6 +114,7 @@ const _CaptureButton: React.FC<Props> = ({
       if (camera.current == null) throw new Error('Camera ref is null!');
 
       console.log('calling startRecording()...');
+
       camera.current.startRecording({
         flash: flash,
         onRecordingError: error => {
